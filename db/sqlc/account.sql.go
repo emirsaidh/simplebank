@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createAccount = `-- name: CreateAccount :one
@@ -44,7 +45,7 @@ DELETE FROM accounts
 WHERE id = $1
 `
 
-func (q *Queries) DeleteAccount(ctx context.Context, id int64) error {
+func (q *Queries) DeleteAccount(ctx context.Context, id sql.NullInt64) error {
 	_, err := q.db.ExecContext(ctx, deleteAccount, id)
 	return err
 }
@@ -54,7 +55,7 @@ SELECT id, owner, balance, currency, created_at FROM accounts
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
+func (q *Queries) GetAccount(ctx context.Context, id sql.NullInt64) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getAccount, id)
 	var i Account
 	err := row.Scan(
@@ -116,7 +117,7 @@ RETURNING id, owner, balance, currency, created_at
 `
 
 type UpdateAccountParams struct {
-	ID      int64 `json:"id"`
+	ID      sql.NullInt64 `json:"id"`
 	Balance int64 `json:"balance"`
 }
 
